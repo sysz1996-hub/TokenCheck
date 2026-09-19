@@ -23,12 +23,14 @@ jobs:
             bash -lc '
               set -e
               echo "QT_ANDROID=$QT_ANDROID ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
-              command -v ninja || (apt-get update && apt-get install -y ninja-build)
+              ls -d /opt/Qt/6.8.0/gcc_64
               rm -rf "$ANDROID_SDK_ROOT/android_openssl"
               git clone --depth 1 https://github.com/KDAB/android_openssl.git "$ANDROID_SDK_ROOT/android_openssl"
-              QTC="$(find ${QT_ANDROID:-/opt/Qt} -name qt-cmake -type f | head -1)"
-              echo "Using $QTC"
-              "$QTC" -S . -B build -G Ninja -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-34 -DCMAKE_BUILD_TYPE=Release
+              qt-cmake -S . -B build -G Ninja \
+                -DQT_HOST_PATH=/opt/Qt/6.8.0/gcc_64 \
+                -DANDROID_ABI=arm64-v8a \
+                -DANDROID_PLATFORM=android-34 \
+                -DCMAKE_BUILD_TYPE=Release
               cmake --build build --config Release --parallel
               find build -name "*.apk" -exec ls -lh {} \;
             '
