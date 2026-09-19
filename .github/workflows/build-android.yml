@@ -13,6 +13,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Patch Gradle wrapper distribution URL
+        run: |
+          for f in \
+            TokenCheckAndroid/android/gradle/wrapper/gradle-wrapper.properties \
+            TokenCheckAndroid/android/gradle_fallback/wrapper/gradle-wrapper.properties ; do
+            if [ -f "$f" ]; then
+              sed -i 's|^distributionUrl=.*|distributionUrl=https://services.gradle.org/distributions/gradle-8.10-bin.zip|' "$f"
+              echo "--- $f ---"
+              cat "$f"
+            fi
+          done
+
       - name: Build APK inside Qt-for-Android container
         run: |
           docker run --rm --user root \
